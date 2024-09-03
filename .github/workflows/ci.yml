@@ -1,3 +1,5 @@
+# Created by João Costa
+
 name: CI
 
 # Run this workflow whenever a push or pull request is made to the main branch
