@@ -1,0 +1,48 @@
+name: CI
+
+# Run this workflow whenever a push or pull request is made to the main branch
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Check out the repository
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    # Set up C++ with GCC (or Clang)
+    - name: Set up C++ environment
+      run: sudo apt-get update && sudo apt-get install -y g++
+
+    # Build the project
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make
+
+    # Run unit tests
+    - name: Run Tests
+      run: |
+        cd build
+        ctest
+
+    # Run static code analysis using cppcheck
+    - name: Static Analysis (cppcheck)
+      run: |
+        sudo apt-get install -y cppcheck
+        cppcheck --enable=all --inconclusive --force --quiet .
+
+    # Run code formatting check using clang-format
+    - name: Code Formatting Check (clang-format)
+      run: |
+        sudo apt-get install -y clang-format
+        clang-format --version
+        clang-format -n **/*.cpp **/*.h
