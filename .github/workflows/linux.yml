@@ -19,3 +19,22 @@ jobs:
     - name: Build & Test
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --target Experimental
+
+      # Run unit tests
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
+    # Run static code analysis using cppcheck
+    - name: Static Analysis (cppcheck)
+      run: |
+        sudo apt-get install -y cppcheck
+        cppcheck --enable=all --inconclusive --force --quiet .
+
+    # Run code formatting check using clang-format
+    - name: Code Formatting Check (clang-format)
+      run: |
+        sudo apt-get install -y clang-format
+        clang-format --version
+        clang-format -n **/*.cpp **/*.h

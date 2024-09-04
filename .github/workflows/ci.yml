@@ -1,3 +1,5 @@
+# Created by João Costa
+
 name: CI
 
 # Run this workflow whenever a push or pull request is made to the main branch
@@ -29,10 +31,10 @@ jobs:
         make
 
     # Run unit tests
-    - name: Run Tests
+    - name: Run tests
       run: |
         cd build
-        ctest
+        ctest --output-on-failure
 
     # Run static code analysis using cppcheck
     - name: Static Analysis (cppcheck)

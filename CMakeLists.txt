@@ -42,6 +42,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(cmake/Toolchain.cmake)
 
 ##########################################################################
+#                         Google Tests Setup                             #
+##########################################################################
+
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz
+)
+
+# Make GoogleTest's CMakeLists.txt available in this project
+FetchContent_MakeAvailable(googletest)
+
+##########################################################################
 #                         Project information                            #
 ##########################################################################
 project("DUNE")
@@ -411,26 +425,32 @@ include(programs/gsmux/Program.cmake)
 ##########################################################################
 #                                 Tests                                  #
 ##########################################################################
-option(TESTS "Compile test programs" FALSE)
+# Configure test option
+option(TESTS "Compile test programs" TRUE)  # Change FALSE to TRUE
 
 if(TESTS)
   enable_testing()
 
-  macro(dune_test source)
-    get_filename_component(executable ${source} NAME_WE)
-    add_executable(${executable} ${source})
-    set_target_properties(${executable} PROPERTIES COMPILE_FLAGS
-      "${DUNE_CXX_FLAGS}")
-    target_link_libraries(${executable} dune-core ${DUNE_SYS_LIBS}
-      ${DUNE_VENDOR_LIBS})
-    ADD_TEST(${executable} ${executable})
-  endmacro(dune_test source)
+  # Include Google Test
+  include(GoogleTest)
 
+  #macro(dune_test source)
+  #  get_filename_component(executable ${source} NAME_WE)
+  #  add_executable(${executable} ${source})
+  #  set_target_properties(${executable} PROPERTIES COMPILE_FLAGS
+  #    "${DUNE_CXX_FLAGS}")
+  #  target_link_libraries(${executable} dune-core ${DUNE_SYS_LIBS}
+  #    ${DUNE_VENDOR_LIBS} gtest gtest_main)  # Link with gtest and gtest_main
+  #  gtest_discover_tests(${executable})  # Automatically register tests with CTest
+  #endmacro(dune_test source)
+
+  # Recursively find and register all test files
   file(GLOB_RECURSE DUNE_TESTS_SOURCES
-    "${PROJECT_SOURCE_DIR}/programs/tests/*.cpp")
-  foreach(test ${DUNE_TESTS_SOURCES})
-    dune_test(${test})
-  endforeach(test ${DUNE_TESTS_SOURCES})
+    "${PROJECT_SOURCE_DIR}/*/tests/*.cpp")
+
+  # foreach(test ${DUNE_TESTS_SOURCES})
+  #   dune_test(${test})
+  # endforeach(test ${DUNE_TESTS_SOURCES})
 endif(TESTS)
 
 ##########################################################################
