@@ -1,5 +1,5 @@
 //***************************************************************************
-// Copyright 2007-2023 Universidade do Porto - Faculdade de Engenharia      *
+// Copyright 2007-2026 Universidade do Porto - Faculdade de Engenharia      *
 // Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                  *
 //***************************************************************************
 // This file is part of DUNE: Unified Navigation Environment.               *
@@ -64,6 +64,10 @@ namespace DUNE
       void
       onEntityReservation(void);
 
+      //! Entity resolution callback.
+      void
+      onEntityResolution(void);
+
       //! Consumer for Brake message.
       //! @param brake message to consume.
       void
@@ -116,7 +120,7 @@ namespace DUNE
       virtual void
       onResourceInitialization(void);
 
-      //! On resource aquisition
+      //! On resource acquisition
       //! This can be overriden but in that case this parent
       //! class implementation MUST be called.
       virtual void
@@ -176,6 +180,16 @@ namespace DUNE
         double vertical_speed;
         //! course error in relation to track bearing.
         double course_error;
+        //! Start lat.
+        double lat_st;
+        //! Start lon.
+        double lon_st;
+        //! End lat.
+        double lat_en;
+        //! End lon.
+        double lon_en;
+        //! Plan Waypoints.
+        Math::Matrix waypoints;
 
         //! Track position & velocity.
         struct TrackCoord
@@ -304,6 +318,26 @@ namespace DUNE
       //! Task method.
       void
       onMain(void);
+
+    protected:
+      //! Set speed reference.
+      //! @param[in] speed desired speed reference
+      //! @param[in] speed_units desired speed units
+      void
+      setSpeedReference(float speed, uint8_t speed_units)
+      {
+        enableControlLoops(IMC::CL_SPEED);
+        m_speed.value = speed;
+        m_speed.speed_units = speed_units;
+        dispatch(m_speed, Tasks::DF_LOOP_BACK);
+      }
+
+      //! Reset speed reference.
+      void
+      resetSpeedReference(void)
+      {
+        setSpeedReference(m_dpath_speed, m_dpath_speed_units);
+      }
 
     private:
       //! Update entity state
@@ -465,6 +499,10 @@ namespace DUNE
       bool m_jump_monitors;
       //! Navigation jump timer to disable monitors
       Time::Counter<float> m_jump_timer;
+      //! Desired path speed reference.
+      fp32_t m_dpath_speed;
+      //! Desired path speed reference units.
+      uint8_t m_dpath_speed_units;
 
       // Arguments
       //! Control period
@@ -503,6 +541,10 @@ namespace DUNE
       uint32_t m_scope_ref;
       //! Maximum admitted track length
       double m_max_track_length;
+      //! Echo Sounder Entity
+      unsigned int m_fls_entity;
+      //! Radius to endpoint
+      double m_end_radius;
     };
   }
 }

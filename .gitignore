@@ -14,4 +14,7 @@ build/
 /.vscode
 /.idea
 cmake-build-debug/
-
+.clang-format
+src/Test
+etc/test.ini
+*.xml

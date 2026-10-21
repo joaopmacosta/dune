@@ -1,5 +1,5 @@
 //***************************************************************************
-// Copyright 2007-2021 Universidade do Porto - Faculdade de Engenharia      *
+// Copyright 2007-2026 Universidade do Porto - Faculdade de Engenharia      *
 // Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                  *
 //***************************************************************************
 // This file is part of DUNE: Unified Navigation Environment.               *
@@ -98,7 +98,11 @@ namespace Sensors
       float m_console_version;
 
       //! Definition of Davis LOOP data packet
+#ifdef __GNUC__
       struct __attribute__((__packed__)) LOOPData
+#elif defined(_MSC_VER)
+      __pragma(pack(push, 1)) struct LOOPData
+#endif
       {
         uint8_t Ack;          // Acknowledge char
         char L;               // "L"
@@ -147,19 +151,21 @@ namespace Sensors
         uint8_t CR;           // '\r' 0x0d
         uint16_t WCRC;        // CRC check bytes (CCITT-16 standard) 2bytes
       };
+#if defined(_MSC_VER)
+      __pragma(pack(pop))
+#endif
 
       //! DAVIS' LOOP data packet data.
       LOOPData m_LOOPData;
 
-      Parser(DUNE::Tasks::Task *task) : m_task(task),
-                                        m_parser_state_OK(Parser::PS_PREAMBLE_1),
-                                        m_parser_state_LOOP(Parser::PS_ACK)
-      {
-      }
+      Parser(DUNE::Tasks::Task *task) : 
+        m_task(task),
+        m_parser_state_OK(Parser::PS_PREAMBLE_1),
+        m_parser_state_LOOP(Parser::PS_ACK)
+      { }
 
       ~Parser(void)
-      {
-      }
+      { }
 
       //! Parse message received
       bool
